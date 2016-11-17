@@ -57,7 +57,6 @@ public class CaptureService extends Service {
                 if (thread != null) {
                     thread.cancelAsync();
                 }
-                // enable buttons
                 break;
         }
         return START_REDELIVER_INTENT;

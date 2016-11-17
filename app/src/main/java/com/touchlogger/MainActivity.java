@@ -1,12 +1,9 @@
 package com.touchlogger;
 
-import android.Manifest;
-import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 
 import com.touchlogger.capture.CaptureIntentMessage;
 import com.touchlogger.capture.CaptureService;
@@ -29,22 +26,17 @@ public class MainActivity extends AppCompatActivity {
             intent.setAction(message.name());
             intents.put(message, intent);
         }
-//        if(storagePermitted(this)) {
-            startService(intents.get(CaptureIntentMessage.START));
-//        }
 
-        // todo think about stopping
+//        startService(intents.get(CaptureIntentMessage.START));
     }
 
-    private static boolean storagePermitted(Activity activity) {
-
-        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
-            return true;
-
-        ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1337);
-        return false;
+    public void startButtonClick(View v) {
+        startService(intents.get(CaptureIntentMessage.START));
 
     }
 
+    public void stopButtonClick(View v) {
+        startService(intents.get(CaptureIntentMessage.STOP));
+
+    }
 }

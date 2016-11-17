@@ -12,7 +12,30 @@
     tools:context="com.touchlogger.MainActivity">
 
     <TextView
+        android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"/>
+        android:text="The notification display capture status\nLogcat contains more details"/>
+
+    <Button
+        android:text="Run capture"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="11dp"
+        android:id="@+id/startButton"
+        android:onClick="startButtonClick"
+        android:layout_below="@+id/textView"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:text="Cancel Capture"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/stopButton"
+        android:onClick="stopButtonClick"
+        android:layout_alignBaseline="@+id/startButton"
+        android:layout_alignBottom="@+id/startButton"
+        android:layout_toRightOf="@+id/startButton"
+        android:layout_toEndOf="@+id/startButton" />
 </RelativeLayout>

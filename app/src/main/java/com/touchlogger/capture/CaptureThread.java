@@ -265,12 +265,10 @@ public class CaptureThread extends Thread {
             killServer(filePath, processBuilder);
 
             if (startServer(filePath, processBuilder)) {
-                // enable buttons
                 return;
             }
 
             if (connectToAdb(filePath, processBuilder)) {
-                // enable buttons
                 return;
             }
 
@@ -368,45 +366,6 @@ public class CaptureThread extends Thread {
         public void onGestureDetect(Gesture gesture, ArrayList<TouchEvent> events) {
             printStatus("Detected: " + gesture, Status.capturing);
         }
-    }
-
-    public File getNextEventLogFile(File dir) throws IOException {
-        SimpleDateFormat dateFormat = new SimpleDateFormat(Configuration.eventLogNameFormat);
-        String date = dateFormat.format(new Date());
-        File eventFile = new File(dir, date + ".json");
-        eventFile.createNewFile();
-        return eventFile;
-    }
-
-    public File getEventsDirectory(boolean good) {
-        File sdCard = Environment.getExternalStorageDirectory();
-        if (!sdCard.canWrite()) {
-            printStatus("can't write sdcard");
-            return null;
-        };
-        if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-            printStatus("sdcard not mounted");
-            return null;
-        }
-        File dir;
-            dir = new File (sdCard.getAbsolutePath());
-        dir.mkdirs();
-        if (!dir.exists()) {
-            printStatus("log dir not created");
-            return null;
-        }
-
-        return dir;
-    }
-
-    public long getSizeOfEventsDirectory() {
-        long size = 0;
-        for (File file : eventLogDir.listFiles()) {
-            if (file.isFile()) {
-                size += file.length();
-            }
-        }
-        return size;
     }
 
     public class CaptureParser implements ICapture {
