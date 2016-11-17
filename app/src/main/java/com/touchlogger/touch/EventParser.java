@@ -2,6 +2,8 @@ package com.touchlogger.touch;
 
 import android.util.Log;
 
+import com.touchlogger.capture.CaptureThread;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,7 +13,7 @@ import java.util.regex.Pattern;
 /**
  * Created by Owner on 24.05.2016.
  */
-public class EventParser extends TouchEventsSource {
+public class EventParser extends TouchEventsSource implements CaptureThread.ICapture {
 
     private Pattern eventRegex = Pattern.compile("\\[\\s+(\\d+\\.\\d+)\\]\\s+(\\w+)\\s+(\\w+)\\s+([\\w\\d]+)");
 
@@ -48,14 +50,17 @@ public class EventParser extends TouchEventsSource {
     }
 
 
-    public void parseLine(String line) {
+    public boolean process(String line) {
         try {
-            lines.add(line);
-            doParseLine(line);
+            if (line.startsWith("[")) {
+                lines.add(line);
+                doParseLine(line);
+            }
         } catch (Exception e) {
             Log.e("Parser", e.getLocalizedMessage());
             setUp(); // error occurred, setup everything and start over
         }
+        return true;
     }
 
     private void doParseLine(String line) {

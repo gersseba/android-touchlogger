@@ -1,6 +1,7 @@
 package com.touchlogger.capture;
 
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -13,6 +14,8 @@ import android.util.Log;
 
 import com.touchlogger.MainActivity;
 import com.touchlogger.R;
+
+import static com.touchlogger.capture.CaptureThread.Status.capturing;
 
 public class CaptureService extends Service {
 
@@ -101,7 +104,6 @@ public class CaptureService extends Service {
                 .setContentText(status)
                 .setContentIntent(clickIntent)
                 .setAutoCancel(false)
-                .setOngoing(true)
                 .setPriority(Notification.PRIORITY_MAX);
 
         switch (type) {
@@ -116,7 +118,13 @@ public class CaptureService extends Service {
                 b.setSmallIcon(R.mipmap.ic_notification_err);
                 break;
         }
-        // This is supposed to prevent us from being killed (if low on memory?)
-        this.startForeground(42, b.build());
+        if (type == capturing) {
+            // This is supposed to prevent us from being killed (if low on memory?)
+            this.startForeground(42, b.build());
+        } else {
+            this.stopForeground(false);
+            NotificationManager notificationManager= (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.notify(42, b.build());
+        }
     }
 }

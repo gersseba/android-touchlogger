@@ -40,21 +40,12 @@ public class CaptureThread extends Thread {
     protected String device;
     protected boolean cancel = false;
     protected boolean capturing = false;
-    protected boolean logging = false;
-    protected boolean testing = false;
-    protected boolean good = false;
     protected boolean mute = false;
 
     protected Process currentProcess = null;
 
     protected EventParser eventParser;
     protected GestureDetector gestureDetector;
-    protected TouchEventSerializer serializer;
-
-    private File eventLogDir;
-    private boolean logTooLarge;
-
-    protected CaptureParser captureParser;
 
     public enum Status {
         warning,
@@ -146,10 +137,7 @@ public class CaptureThread extends Thread {
     }
 
     private int runCapture(ProcessBuilder processBuilder, String filePath, String cmd, String name, ICapture cap) throws IOException {
-        String error, output;
         Process process;
-        Scanner scanner;
-        int result;
 
 //        printStatus("Trying to start " + name);
         processBuilder.command().clear();
@@ -205,7 +193,7 @@ public class CaptureThread extends Thread {
         while (continuing) {
             String line = reader.readLine();
             if (line == null) break;
-            continuing = cap.process(line);
+            continuing = cap.process(line) && !cancel;
         }
         synchronized (this) { currentProcess = null; }
         printStatus("Stopped capturing, no more input will be logged or analyzed");
@@ -296,12 +284,13 @@ public class CaptureThread extends Thread {
                         printStatus("Found device:" + device);
                         return false;
                     }
-                    return !cancel;
+                    return true;
                 }
             });
             mute = false;
-            captureParser = new CaptureParser();
-            result = runCapture(processBuilder, filePath, "getevent -lt " + device + "\n", "Capture", captureParser);
+            eventParser = new EventParser();
+            eventParser.registerCallback(proxy);
+            result = runCapture(processBuilder, filePath, "getevent -lt " + device + "\n", "Capture", eventParser);
 
             printStatus("Trying to stop server");
             processBuilder.command(filePath, "kill-server");
@@ -368,43 +357,4 @@ public class CaptureThread extends Thread {
         }
     }
 
-    public class CaptureParser implements ICapture {
-
-        private long nextSizeCheck;
-
-        public CaptureParser() {
-            eventParser = new EventParser();
-            eventParser.registerCallback(proxy);
-        }
-
-        @Override
-        public boolean process(String line) {
-            if (line.startsWith("[")) {
-                eventParser.parseLine(line);
-
-                /* todo extract into eventsink
-                long currentMillis = System.currentTimeMillis();
-                if(logging) {
-                    if(currentMillis > nextSizeCheck) {
-                        logTooLarge = getSizeOfEventsDirectory() > Configuration.maxEventLogSize;
-                        nextSizeCheck = currentMillis + Configuration.sizeCheckInterval;
-                    }
-                    if(logTooLarge) {
-                        try {
-                            printStatus("Log files too big, stopped logging.");
-                            stopLogging();
-                        } catch (IOException e) {
-                            Log.e(LOGTAG, "Error while automatically stopping logging " + e.getLocalizedMessage());
-                        }
-                    }
-                }*/
-
-            }
-            return !cancel;
-        }
-
-        public void finish() throws IOException {
-            serializer.finish();
-        }
-    }
 }
